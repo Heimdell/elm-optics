@@ -1,0 +1,22 @@
+{
+    "type": "package",
+    "name": "Heimdell/elm-optics",
+    "license": "BSD-3-Clause",
+    "summary": "Optics for Elm with single composition operator",
+    "version": "1.0.0",
+    "exposed-modules": [
+        "Optics.Core",
+        "Optics.Basic"
+    ],
+    "source-directories": [
+        "src"
+    ],
+    "elm-version": "0.19.1 <= v <= 1.0.0",
+    "dependencies": {
+        "elm/browser": "1.0.2 <= v < 2.0.0",
+        "elm/core": "1.0.5 <= v < 2.0.0",
+        "elm/html": "1.0.0 <= v < 2.0.0",
+        "toastal/either": "3.5.2 <= v < 4.0.0"
+    },
+    "test-dependencies": {}
+}
