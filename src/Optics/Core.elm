@@ -64,12 +64,12 @@ type N
 
 {-| A lens, prism or a traversal.
 
-The 'pr' and 'ls' are type variables to track `review` and `view` capabilities (or lack thereof).
+The `pr` and `ls` are type variables to track `review` and `view` capabilities (or lack thereof).
 
-The 's', 't', 'a' and 'b' are "input object type", "output object type", "input part type"
+The `s`, `t`, `a` and `b` are "input object type", "output object type", "input part type"
 and "output part type", accordingly.
 
-This means that you can get 'a' from 's', and given a function 'a -> b' make a 't' out of 's'.
+This means that you can get `a` from `s`, and given a function `a -> b` make a `t` out of `s`.
 
 Later in this text I will use term "final" for "out" types and "initial" for "in" types.
 
@@ -169,7 +169,7 @@ Parameters are: reconstructor and a splitter.
 Reconstructor takes a final value and constructs a final object.
 
 The splitter turns initial object either to final object directly (if initial object is of wrong variant),
-or spits out 'a'.
+or spits out `a`.
 
 -}
 prism : (b -> t) -> (s -> Either t a) -> Prism pr s t a b
@@ -187,9 +187,9 @@ prism back split =
 
 Parameters are: toList and a mapper.
 
-We need 'toList', because there is no 'Foldable' typeclass in Elm.
+We need `toList`, because there is no `Foldable` typeclass in Elm.
 
-The mapper is a "mapSomething" function over 's'.
+The mapper is a "mapSomething" function over `s`.
 
 -}
 traversal : (s -> List a) -> ((a -> b) -> s -> t) -> Traversal s t a b

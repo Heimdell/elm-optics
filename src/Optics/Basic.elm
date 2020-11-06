@@ -2,9 +2,10 @@ module Optics.Basic exposing
     ( just_, nothing_
     , right_, left_
     , only
-    , each
-    , every
+    , each, nth, drop, take, cons, nil, head, tail
+    , every, ith
     , first, second
+    , atKey, assocs
     )
 
 {-| Some optics for basic types.
@@ -27,7 +28,7 @@ module Optics.Basic exposing
 
 # List
 
-@docs each, nth, drop, take, cons, nil, head, tail, nth
+@docs each, nth, drop, take, cons, nil, head, tail
 
 
 # Array
