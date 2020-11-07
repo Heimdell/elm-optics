@@ -19,7 +19,10 @@ import Dict exposing (Dict)
 ```elm
 type alias Point = { x : Float, y : Float }
 
-type alias Block = { mass : Float, components : List (Maybe Point, String) }
+type alias Block =
+    { mass       : Float
+    , components : List (Maybe Point, String)
+    }
 
 type alias Model = Dict String Block
 ```
@@ -30,7 +33,8 @@ y_ : SimpleLens ls { a | y : b } b
 y_ = lens .y <| \s a -> { s | y = a }
 
 components_ : SimpleLens ls { a | components : b } b
-components_ = lens .components <| \s a -> { s | components = a }
+components_ =
+  lens .components (\s a -> { s | components = a })
 ```
 
 ## Reading
@@ -38,7 +42,8 @@ components_ = lens .components <| \s a -> { s | components = a }
 theHighestPoint : Model -> Maybe Float
 theHighestPoint model =
     model
-    |> getAll (o dictValues (o components_ (o each (o first (o just_ y_)))))
+    |> getAll (o (o dictValues components_)
+                 (o each (o first (o just_ y_)))))
     |> List.maximum
 ```
 
@@ -48,7 +53,8 @@ moveVertically : Float -> Model -> Model
 moveVertically dy model =
     model
     |> update
-        (o (o dictValues components_) (o each (o first (o just_ y_))))
+        (o (o dictValues components_)
+           (o each (o first (o just_ y_))))
         (\y -> y + dy)
 ```
 
@@ -66,7 +72,7 @@ The one new exported type it defines is
 
 ```elm
 type Optic pr ls s t a b = ...
-```.
+```
 
 The `pr` and `ls` are types for proofs that given optic is a "Prism" or a "Lens".
 The proof types that are used are not accessible outside the library, so if you must leave there vars to be type variables in your code.
@@ -79,7 +85,9 @@ disables "Prism" behaviour for lens by setting prism proof type as inconstructib
 
 The `o` operator has type
 ```elm
-o : Optic pr ls s t a b -> Optic pr ls a b x z -> Optic pr ls s t z s
+o :  Optic pr ls s t a b
+  -> Optic pr ls a b x z
+  -> Optic pr ls s t z s
 ```
 so it will, if a lens is on either side, unify `pr` variable of the second optic with `N`.
 
