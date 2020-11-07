@@ -189,7 +189,7 @@ nth i =
 -}
 ith : Int -> SimpleTraversal (Array a) a
 ith i =
-    traversal (Array.get i >> viewAll just_) <|
+    traversal (Array.get i >> getAll just_) <|
         \f arr ->
             case Array.get i arr of
                 Just x ->
@@ -238,7 +238,7 @@ uncurry f ( a, b ) =
 -}
 atKey : comparable_k -> SimpleTraversal (Dict comparable_k v) v
 atKey k =
-    traversal (Dict.get k >> viewAll just_) <|
+    traversal (Dict.get k >> getAll just_) <|
         \f arr ->
             case Dict.get k arr of
                 Just x ->

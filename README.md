@@ -8,11 +8,18 @@ There also are ways to define custom accessors for your own types and compose th
 
 # Example
 
+## Imports
+```elm
+import Optics.Basic exposing (..)
+import Optics.Core exposing (..)
+import Dict exposing (Dict)
+```
+
 ## Data
 ```elm
 type alias Point = { x : Float, y : Float }
 
-type alias Block = { mass : Float, components : List (Point, String) }
+type alias Block = { mass : Float, components : List (Maybe Point, String) }
 
 type alias Model = Dict String Block
 ```
@@ -29,16 +36,27 @@ components_ = lens .components <| \s a -> { s | components = a }
 ## Reading
 ```elm
 theHighestPoint : Model -> Maybe Float
-theHighestPoint =
-    viewAll (o dictValues (o components_ (o each (o first y_))))
-    >> List.maximum
+theHighestPoint model =
+    model
+    |> getAll (o dictValues (o components_ (o each (o first (o just_ y_)))))
+    |> List.maximum
 ```
 
 ## Updating
 ```elm
 moveVertically : Float -> Model -> Model
-moveVertically y = over (o (o dictValues components_) (o (o each first) y_)) (\it -> it + y)
+moveVertically dy model =
+    model
+    |> update
+        (o (o dictValues components_) (o each (o first (o just_ y_))))
+        (\y -> y + dy)
 ```
+
+## Workflow
+
+You create accessor using optics from `Optics.Basic` and your own (created by `lens`, `prism`, etc from `Optics.Core`) using composition operator `Optics.Core.o`.
+
+Then you use it with functions like `get`, `getSome`, `getAll`, `update` or `assign`.
 
 The `o` operator is associative, so `(o a (o b c))` is the same as `(o (o a b) c)`.
 

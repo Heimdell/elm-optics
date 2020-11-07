@@ -18,28 +18,29 @@ components_ : SimpleLens ls { a | components : b } b
 components_ = lens .components <| \s a -> { s | components = a }
 
 top : Model -> Maybe Float
-top = viewAll (o dictValues (o components_ (o each (o first (o just_ y_)))))
+top =
+    getAll (o dictValues (o components_ (o each (o first (o just_ y_)))))
     >> List.maximum
 
 moveUp : Float -> Model -> Model
-moveUp y = over (o (o dictValues components_) (o each (o first (o just_ y_)))) (\it -> it + y)
+moveUp y = update (o (o dictValues components_) (o each (o first (o just_ y_)))) (\it -> it + y)
 
 test1 : Int
 test1 =
     ( ( 1, 2 ), 3 )
-        |> view (o first second)
+        |> get (o first second)
 
 
 test2 : Maybe Int
 test2 =
     [ ( Just ( 1, 2 ), 3 ) ]
-        |> viewSome (o each (o first (o just_ second)))
+        |> getSome (o each (o first (o just_ second)))
 
 
 test3 : List ( Maybe ( Int, String ), Int )
 test3 =
     [ ( Just ( 1, 2 ), 3 ) ]
-        |> over (o (o each first) (o just_ second)) Debug.toString
+        |> update (o (o each first) (o just_ second)) Debug.toString
 
 
 test4 : Maybe (Maybe Int)

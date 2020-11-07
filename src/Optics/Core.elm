@@ -3,9 +3,9 @@ module Optics.Core exposing
     , SimpleLens, SimplePrism, SimpleTraversal, SimpleIso
     , lens, prism, traversal, iso
     , id, o
-    , view
+    , get
     , review, is
-    , viewSome, viewAll, over, put
+    , getSome, getAll, update, assign
     )
 
 {-| An implementation of optics in Elm.
@@ -33,7 +33,7 @@ module Optics.Core exposing
 
 # `Lens` usage
 
-@docs view
+@docs get
 
 
 # `Prism` usage
@@ -43,7 +43,7 @@ module Optics.Core exposing
 
 # General usage (`Traversal`s)
 
-@docs viewSome, viewAll, over, put
+@docs getSome, getAll, update, assign
 
 -}
 
@@ -64,7 +64,7 @@ type N
 
 {-| A lens, prism or a traversal.
 
-The `pr` and `ls` are type variables to track `review` and `view` capabilities (or lack thereof).
+The `pr` and `ls` are type variables to track `review` and `get` capabilities (or lack thereof).
 
 The `s`, `t`, `a` and `b` are "input object type", "output object type", "input part type"
 and "output part type", accordingly.
@@ -76,9 +76,9 @@ Later in this text I will use term "final" for "out" types and "initial" for "in
 -}
 type Optic pr ls s t a b
     = Optic
-        { view : ( ls, s ) -> a
+        { get : ( ls, s ) -> a
         , review : ( pr, b ) -> t
-        , viewAll : s -> List a
+        , getAll : s -> List a
         , update : (a -> b) -> s -> t
         }
 
@@ -155,8 +155,8 @@ the object of a new type.
 lens : (s -> a) -> (s -> b -> t) -> Lens ls s t a b
 lens v upd =
     Optic
-        { view = \( _, a ) -> v a
-        , viewAll = \a -> [ v a ]
+        { get = \( _, a ) -> v a
+        , getAll = \a -> [ v a ]
         , review = \( n, b ) -> absurd n
         , update = \f s -> upd s <| f <| v s
         }
@@ -175,8 +175,8 @@ or spits out `a`.
 prism : (b -> t) -> (s -> Either t a) -> Prism pr s t a b
 prism back split =
     Optic
-        { viewAll = split >> Either.unpack (always []) (\a -> [ a ])
-        , view = \( n, s ) -> absurd n
+        { getAll = split >> Either.unpack (always []) (\a -> [ a ])
+        , get = \( n, s ) -> absurd n
         , review = \( _, b ) -> back b
         , update =
             \f -> split >> Either.unpack identity (f >> back)
@@ -189,14 +189,14 @@ Parameters are: toList and a mapper.
 
 We need `toList`, because there is no `Foldable` typeclass in Elm.
 
-The mapper is a "mapSomething" function over `s`.
+The mapper is a "mapSomething" function update `s`.
 
 -}
 traversal : (s -> List a) -> ((a -> b) -> s -> t) -> Traversal s t a b
 traversal v u =
     Optic
-        { viewAll = v
-        , view = \( n, _ ) -> absurd n
+        { getAll = v
+        , get = \( n, _ ) -> absurd n
         , review = \( n, _ ) -> absurd n
         , update = u
         }
@@ -207,8 +207,8 @@ traversal v u =
 iso : (s -> a) -> (b -> t) -> Iso pr ls s t a b
 iso v upd =
     Optic
-        { view = \( _, a ) -> v a
-        , viewAll = \a -> [ v a ]
+        { get = \( _, a ) -> v a
+        , getAll = \a -> [ v a ]
         , review = \( _, b ) -> upd b
         , update = \f s -> upd <| f <| v s
         }
@@ -219,8 +219,8 @@ iso v upd =
 id : SimpleLens ls s s
 id =
     Optic
-        { viewAll = List.singleton
-        , view = Tuple.second
+        { getAll = List.singleton
+        , get = Tuple.second
         , review = Tuple.second
         , update = identity
         }
@@ -231,8 +231,8 @@ id =
 o : Optic pr ls s t a b -> Optic pr ls a b x y -> Optic pr ls s t x y
 o (Optic f) (Optic g) =
     Optic
-        { viewAll = f.viewAll >> List.concatMap g.viewAll
-        , view = \( y, s ) -> g.view ( y, f.view ( y, s ) )
+        { getAll = f.getAll >> List.concatMap g.getAll
+        , get = \( y, s ) -> g.get ( y, f.get ( y, s ) )
         , review = \( y, b ) -> f.review ( y, g.review ( y, b ) )
         , update = g.update >> f.update
         }
@@ -240,16 +240,16 @@ o (Optic f) (Optic g) =
 
 {-| Retrieve the only element using a lens.
 -}
-view : Optic pr Y s t a b -> s -> a
-view (Optic l) s =
-    l.view ( (), s )
+get : Optic pr Y s t a b -> s -> a
+get (Optic l) s =
+    l.get ( (), s )
 
 
 {-| Retrieve up to one element using any optic.
 -}
-viewSome : Optic pr ls s t a b -> s -> Maybe a
-viewSome (Optic l) =
-    l.viewAll >> List.head
+getSome : Optic pr ls s t a b -> s -> Maybe a
+getSome (Optic l) =
+    l.getAll >> List.head
 
 
 {-| Check if s is related to a prism.
@@ -261,14 +261,14 @@ is kinda be questionable.
 -}
 is : Optic Y ls s t a b -> s -> Bool
 is (Optic l) =
-    l.viewAll >> List.isEmpty >> not
+    l.getAll >> List.isEmpty >> not
 
 
 {-| Retrieve all elements using any optic.
 -}
-viewAll : Optic pr ls s t a b -> s -> List a
-viewAll (Optic l) =
-    l.viewAll
+getAll : Optic pr ls s t a b -> s -> List a
+getAll (Optic l) =
+    l.getAll
 
 
 {-| Use prism to reconstruct.
@@ -280,13 +280,13 @@ review (Optic l) s =
 
 {-| Update over any optic.
 -}
-over : Optic pr ls s t a b -> (a -> b) -> (s -> t)
-over (Optic l) =
+update : Optic pr ls s t a b -> (a -> b) -> (s -> t)
+update (Optic l) =
     l.update
 
 
 {-| Assign into any optic.
 -}
-put : Optic pr ls s t a b -> b -> (s -> t)
-put (Optic l) =
+assign : Optic pr ls s t a b -> b -> (s -> t)
+assign (Optic l) =
     l.update << always
