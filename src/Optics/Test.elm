@@ -1,29 +1,43 @@
 module Optics.Test exposing (..)
 
+import Dict exposing (Dict)
 import Html exposing (Html)
-
-
 import Optics.Basic exposing (..)
 import Optics.Core exposing (..)
-import Dict exposing (Dict)
 
-type alias Point = {x : Float, y : Float}
-type alias Block = { mass : Float, components : List (Maybe Point, String) }
-type alias Model = Dict String Block
+
+type alias Point =
+    { x : Float, y : Float }
+
+
+type alias Block =
+    { mass : Float, components : List ( Maybe Point, String ) }
+
+
+type alias Model =
+    Dict String Block
+
 
 y_ : SimpleLens ls { a | y : b } b
-y_ = lens .y <| \s a -> { s | y = a }
+y_ =
+    lens .y <| \s a -> { s | y = a }
+
 
 components_ : SimpleLens ls { a | components : b } b
-components_ = lens .components <| \s a -> { s | components = a }
+components_ =
+    lens .components <| \s a -> { s | components = a }
+
 
 top : Model -> Maybe Float
 top =
     getAll (o dictValues (o components_ (o each (o first (o just_ y_)))))
-    >> List.maximum
+        >> List.maximum
+
 
 moveUp : Float -> Model -> Model
-moveUp y = update (o (o dictValues components_) (o each (o first (o just_ y_)))) (\it -> it + y)
+moveUp y =
+    update (o (o dictValues components_) (o each (o first (o just_ y_)))) (\it -> it + y)
+
 
 test1 : Int
 test1 =

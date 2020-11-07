@@ -254,7 +254,9 @@ assocs : Iso pr ls (Dict comparable_k v) (Dict comparable_l w) (List ( comparabl
 assocs =
     iso Dict.toList Dict.fromList
 
+
 {-| Traversal over values in the dictionary.
 -}
 dictValues : Traversal (Dict comparable_k v) (Dict comparable_k w) v w
-dictValues = o assocs (o each second)
+dictValues =
+    o assocs (o each second)

@@ -64,7 +64,7 @@ type N
 
 {-| A lens, prism or a traversal.
 
-The `pr` and `ls` are type variables to track `review` and `get` capabilities (or lack thereof).
+The `pr` and `ls` are used to track `review` and `get` capabilities, leave them being type variables. The consumers of lens will try to unify either of these with `Y` type (= `()`).
 
 The `s`, `t`, `a` and `b` are "input object type", "output object type", "input part type"
 and "output part type", accordingly.
@@ -101,7 +101,7 @@ type alias Traversal s t a b =
     Optic N N s t a b
 
 
-{-| The traversal is both "lens" and "prism".
+{-| The isomorphism is both "lens" and "prism".
 -}
 type alias Iso pr ls s t a b =
     Optic pr ls s t a b

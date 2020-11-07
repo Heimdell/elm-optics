@@ -89,4 +89,4 @@ Same goes for prisms - `ls` is set to `N`.
 
 The traversal is when both `ls` and `pr` are set to `N` - for instance, by creating one with `traversal` or by composing a prism with a lens in either direction (e.g. `o first _Just`).
 
-The lens/prism-specific eliminators for the optics (`view`/`review`/`is`) are requiring that the `pr` (or `ls`) should be `()`.
+The lens/prism-specific eliminators for the optics (`get`/`review`/`is`) are requiring that the `pr` (or `ls`) should be `()`.
