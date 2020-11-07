@@ -5,7 +5,7 @@ module Optics.Basic exposing
     , each, nth, drop, take, cons, nil, head, tail
     , every, ith
     , first, second
-    , atKey, assocs
+    , atKey, assocs, dictValues
     )
 
 {-| Some optics for basic types.
@@ -43,7 +43,7 @@ module Optics.Basic exposing
 
 # Dict
 
-@docs atKey, assocs
+@docs atKey, assocs, dictValues
 
 -}
 
@@ -253,3 +253,8 @@ atKey k =
 assocs : Iso pr ls (Dict comparable_k v) (Dict comparable_l w) (List ( comparable_k, v )) (List ( comparable_l, w ))
 assocs =
     iso Dict.toList Dict.fromList
+
+{-| Traversal over values in the dictionary.
+-}
+dictValues : Traversal (Dict comparable_k v) (Dict comparable_k w) v w
+dictValues = o assocs (o each second)

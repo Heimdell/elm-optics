@@ -6,17 +6,63 @@ Minimalistic, but faithful port of [Lens](https://hackage.haskell.org/package/le
 This library provides a way to access and modify elements of data located deeply inside a structure, possibly behind sum types (`Maybe`, `Either`, etc) and/or containers (`Array`, `List`, `Dict`, `Tuple`, etc).
 There also are ways to define custom accessors for your own types and compose them with a single `o` operator as you like.
 
+# Example
+
+## Data
+```elm
+type alias Point = { x : Float, y : Float }
+
+type alias Block = { mass : Float, components : List (Point, String) }
+
+type alias Model = Dict String Block
+```
+
+## Accessors
+```elm
+y_ : SimpleLens ls { a | y : b } b
+y_ = lens .y <| \s a -> { s | y = a }
+
+components_ : SimpleLens ls { a | components : b } b
+components_ = lens .components <| \s a -> { s | components = a }
+```
+
+## Reading
+```elm
+theHighestPoint : Model -> Maybe Float
+theHighestPoint =
+    viewAll (o dictValues (o components_ (o each (o first y_))))
+    >> List.maximum
+```
+
+## Updating
+```elm
+moveVertically : Float -> Model -> Model
+moveVertically y = over (o (o dictValues components_) (o (o each first) y_)) (\it -> it + y)
+```
+
+The `o` operator is associative, so `(o a (o b c))` is the same as `(o (o a b) c)`.
+
 # Gory details
 
-The one new exported type it defines is `Optic pr ls s t a b`.
+The one new exported type it defines is
+
+```elm
+type Optic pr ls s t a b = ...
+```.
 
 The `pr` and `ls` are types for proofs that given optic is a "Prism" or a "Lens".
-The proof types that are used are not accessible outside the library, so if you use any of types that
-require them, leave them as type variables.
+The proof types that are used are not accessible outside the library, so if you must leave there vars to be type variables in your code.
 
-For instance, the type synonym `type alias Lens ls s t a b = Optic N ls s t a b` disables "Prism" behaviour for lens by setting prism proof type as inconstructible type `N`.
+For instance, the type synonym
+```elm
+type alias Lens ls s t a b = Optic N ls s t a b
+```
+disables "Prism" behaviour for lens by setting prism proof type as inconstructible type `N`.
 
-The `o` operator has type `Optic pr ls s t a b -> Optic pr ls a b x z -> Optic pr ls s t z s`,
+The `o` operator has type
+```elm
+o : Optic pr ls s t a b -> Optic pr ls a b x z -> Optic pr ls s t z s
+```
 so it will, if a lens is on either side, unify `pr` variable of the second optic with `N`.
 
 Basically, `N` will contaminate any `o` chains in a given channel, making some eliminators impossibe to use.
