@@ -1,5 +1,5 @@
 module Optics.Core exposing
-    ( Optic, Lens, Prism, Traversal, Iso
+    ( Y, Optic, Lens, Prism, Traversal, Iso
     , SimpleLens, SimplePrism, SimpleTraversal, SimpleIso
     , lens, prism, traversal, iso
     , id, o
@@ -50,7 +50,9 @@ module Optics.Core exposing
 import Either exposing (Either(..))
 
 
-{-| Type-level "yes". Is a 1 type.
+{-| Use this type as replacement for `pr`/`ls` variable when they are in the
+signature of the function that calls any of requiring eliminators (`get`/
+`review`/`is`).
 -}
 type alias Y =
     ()

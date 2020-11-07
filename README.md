@@ -75,7 +75,6 @@ type Optic pr ls s t a b = ...
 ```
 
 The `pr` and `ls` are types for proofs that given optic is a "Prism" or a "Lens".
-The proof types that are used are not accessible outside the library, so if you must leave there vars to be type variables in your code.
 
 For instance, the type synonym
 ```elm
