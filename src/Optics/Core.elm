@@ -13,7 +13,7 @@ module Optics.Core exposing
 
 # Optics
 
-@docs Optic, Lens, Prism, Traversal, Iso
+@docs Optic, Lens, Prism, Traversal, Iso, Y
 
 
 # Monomorphed versions
