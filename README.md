@@ -52,7 +52,7 @@ theHighestPoint model =
 moveVertically : Float -> Model -> Model
 moveVertically dy model =
     model
-    |> update
+    |> over
         (o (o dictValues components_)
            (o each (o first (o just_ y_))))
         (\y -> y + dy)
@@ -62,7 +62,7 @@ moveVertically dy model =
 
 You create accessor using optics from `Optics.Basic` and your own (created by `lens`, `prism`, etc from `Optics.Core`) using composition operator `Optics.Core.o`.
 
-Then you use it with functions like `get`, `getSome`, `getAll`, `update` or `assign`.
+Then you use it with functions like `get`, `getSome`, `getAll`, `over` or `assign`.
 
 The `o` operator is associative, so `(o a (o b c))` is the same as `(o (o a b) c)`.
 
