@@ -36,7 +36,7 @@ top =
 
 moveUp : Float -> Model -> Model
 moveUp y =
-    update (o (o dictValues components_) (o each (o first (o just_ y_)))) (\it -> it + y)
+    over (o (o dictValues components_) (o each (o first (o just_ y_)))) (\it -> it + y)
 
 
 test1 : Int
@@ -54,7 +54,7 @@ test2 =
 test3 : List ( Maybe ( Int, String ), Int )
 test3 =
     [ ( Just ( 1, 2 ), 3 ) ]
-        |> update (o (o each first) (o just_ second)) Debug.toString
+        |> over (o (o each first) (o just_ second)) Debug.toString
 
 
 test4 : Maybe (Maybe Int)
@@ -79,6 +79,6 @@ main =
     Html.ul []
         [ eq "deep access" test1 2
         , eq "composition" test2 (Just 2)
-        , eq "deep update" test3 [ ( Just ( 1, "2" ), 3 ) ]
+        , eq "deep over" test3 [ ( Just ( 1, "2" ), 3 ) ]
         , eq "reconstruction" test4 (Just (Just 1))
         ]

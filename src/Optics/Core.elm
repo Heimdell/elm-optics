@@ -1,11 +1,11 @@
 module Optics.Core exposing
-    ( Y, Optic, Lens, Prism, Traversal, Iso
+    ( Optic, Lens, Prism, Traversal, Iso, Y
     , SimpleLens, SimplePrism, SimpleTraversal, SimpleIso
     , lens, prism, traversal, iso
     , id, o
     , get
     , review, is
-    , getSome, getAll, update, assign
+    , getSome, getAll, over, assign
     )
 
 {-| An implementation of optics in Elm.
@@ -43,7 +43,7 @@ module Optics.Core exposing
 
 # General usage (`Traversal`s)
 
-@docs getSome, getAll, update, assign
+@docs getSome, getAll, over, assign
 
 -}
 
@@ -81,7 +81,7 @@ type Optic pr ls s t a b
         { get : ( ls, s ) -> a
         , review : ( pr, b ) -> t
         , getAll : s -> List a
-        , update : (a -> b) -> s -> t
+        , over : (a -> b) -> s -> t
         }
 
 
@@ -160,7 +160,7 @@ lens v upd =
         { get = \( _, a ) -> v a
         , getAll = \a -> [ v a ]
         , review = \( n, b ) -> absurd n
-        , update = \f s -> upd s <| f <| v s
+        , over = \f s -> upd s <| f <| v s
         }
 
 
@@ -180,7 +180,7 @@ prism back split =
         { getAll = split >> Either.unpack (always []) (\a -> [ a ])
         , get = \( n, s ) -> absurd n
         , review = \( _, b ) -> back b
-        , update =
+        , over =
             \f -> split >> Either.unpack identity (f >> back)
         }
 
@@ -191,7 +191,7 @@ Parameters are: toList and a mapper.
 
 We need `toList`, because there is no `Foldable` typeclass in Elm.
 
-The mapper is a "mapSomething" function update `s`.
+The mapper is a "mapSomething" function over `s`.
 
 -}
 traversal : (s -> List a) -> ((a -> b) -> s -> t) -> Traversal s t a b
@@ -200,7 +200,7 @@ traversal v u =
         { getAll = v
         , get = \( n, _ ) -> absurd n
         , review = \( n, _ ) -> absurd n
-        , update = u
+        , over = u
         }
 
 
@@ -212,7 +212,7 @@ iso v upd =
         { get = \( _, a ) -> v a
         , getAll = \a -> [ v a ]
         , review = \( _, b ) -> upd b
-        , update = \f s -> upd <| f <| v s
+        , over = \f s -> upd <| f <| v s
         }
 
 
@@ -224,7 +224,7 @@ id =
         { getAll = List.singleton
         , get = Tuple.second
         , review = Tuple.second
-        , update = identity
+        , over = identity
         }
 
 
@@ -236,7 +236,7 @@ o (Optic f) (Optic g) =
         { getAll = f.getAll >> List.concatMap g.getAll
         , get = \( y, s ) -> g.get ( y, f.get ( y, s ) )
         , review = \( y, b ) -> f.review ( y, g.review ( y, b ) )
-        , update = g.update >> f.update
+        , over = g.over >> f.over
         }
 
 
@@ -282,13 +282,13 @@ review (Optic l) s =
 
 {-| Update over any optic.
 -}
-update : Optic pr ls s t a b -> (a -> b) -> (s -> t)
-update (Optic l) =
-    l.update
+over : Optic pr ls s t a b -> (a -> b) -> (s -> t)
+over (Optic l) =
+    l.over
 
 
 {-| Assign into any optic.
 -}
 assign : Optic pr ls s t a b -> b -> (s -> t)
 assign (Optic l) =
-    l.update << always
+    l.over << always
