@@ -3,7 +3,7 @@
     "name": "Heimdell/elm-optics",
     "summary": "Optics for Elm with single composition operator",
     "license": "BSD-3-Clause",
-    "version": "2.1.0",
+    "version": "3.0.0",
     "exposed-modules": [
         "Optics.Core",
         "Optics.Basic"
