@@ -242,7 +242,7 @@ atKey k =
         \f arr ->
             case Dict.get k arr of
                 Just x ->
-                    Dict.insert k x arr
+                    Dict.insert k (f x) arr
 
                 Nothing ->
                     arr
